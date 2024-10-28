@@ -12,9 +12,9 @@ class Investimento:
         self.aporte_inicial = Decimal(aporte_inicial)
         self.total_bruto = Decimal(aporte_inicial)
         self.total_liquido = Decimal(aporte_inicial)
-        self.rendimento_total_bruto = 0
-        self.rendimento_total_liquido = 0
-        self.resgate = 0
+        self.rendimento_total_bruto = Decimal(0)
+        self.rendimento_total_liquido = Decimal(0)
+        self.rendimentos_resgatados = Decimal(0)
         self.taxa_contratada_aa = taxa_contratada_aa
         self.taxa_contratada_ad = self.__yield_anual_para_diaria(taxa_contratada_aa)
         self.tabela_retorno = dict()
@@ -29,13 +29,26 @@ class Investimento:
         return int((datetime.now() - self.data_aplicacao).total_seconds())
 
     def resgatar_por_valor_bruto(self, valor_resgatado: float) -> Decimal:
-        self.total_bruto -= Decimal(valor_resgatado)
+        valor_resgatado = Decimal(valor_resgatado)
 
-        # calcular o ir
-        rendimento_total = sum(map(lambda x: x[1], self.tabela_retorno.values()))
-        ir = rendimento_total * (Decimal(valor_resgatado) / self.aporte_inicial) * self.get_taxa_imposto()
+        # Calcular rendimento proporcional ao valor resgatado
+        rendimento_proporcional = (valor_resgatado / self.total_bruto) * self.rendimento_total_bruto
 
-        return Decimal(valor_resgatado) - ir
+        # Calcular o IR proporcional sobre o rendimento proporcional
+        ir_proporcional = rendimento_proporcional * self.get_taxa_imposto()
+
+        # Certificar que o IR não seja negativo (após subtração do IR já pago)
+        if ir_proporcional < 0:
+            ir_proporcional = Decimal(0)
+
+        # Calcular o valor líquido após descontar o IR
+        valor_liquido = valor_resgatado - ir_proporcional
+
+        # Atualizar o saldo restante após o resgate
+        self.total_bruto -= valor_resgatado
+        self.rendimentos_resgatados += rendimento_proporcional
+
+        return valor_liquido
 
     def processa_rentabilidade(self) -> None:
 
@@ -55,23 +68,27 @@ class Investimento:
 
             self.proximo_dia_a_rentabilizar = dia + 1
 
+        self.total_bruto = self.total_bruto.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     # Como calcular o rendimento bruto, rendimento líquido e i IR depois de um resgate?
     def get_rendimento_bruto(self) -> Decimal:
-        self.rendimento_total_bruto = sum(map(lambda x: x[1], self.tabela_retorno.values()))
+        self.rendimento_total_bruto = sum(map(lambda x: x[1], self.tabela_retorno.values())) - self.rendimentos_resgatados
         return self.rendimento_total_bruto
 
     def get_rendimento_liquido(self) -> Decimal:
-
-        self.rendimento_liquido = self.rendimento_total_bruto * Decimal(str(1 - self.get_taxa_imposto()))
-        return self.rendimento_liquido
+        self.rendimento_total_liquido = (
+                self.rendimento_total_bruto * Decimal(str(1 - self.get_taxa_imposto()))
+                ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        return self.rendimento_total_liquido
 
     def get_total_liquido(self) -> Decimal:
-        self.total_liquido = self.total_bruto - Decimal(str(self.get_ir()))
+        self.total_liquido = (
+                self.total_bruto - Decimal(str(self.get_ir()))
+        ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         return self.total_liquido
 
     def get_ir(self) -> Decimal:
-        return self.rendimento_total_bruto - self.rendimento_liquido
+        return self.rendimento_total_bruto - self.rendimento_total_liquido
 
     def get_taxa_imposto(self) -> Decimal:
         if self.tipo.e_isento_de_ir():

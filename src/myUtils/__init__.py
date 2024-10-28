@@ -1,5 +1,5 @@
 import locale
-from decimal import Decimal,
+from decimal import Decimal
 
 
 def formato_br_para_americano(valor) -> str:

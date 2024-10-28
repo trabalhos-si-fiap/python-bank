@@ -1,4 +1,5 @@
 from src.Enums.AcaoEnum import Acao
+from src.Enums.EmprestimoEnum import EmprestimoEnum
 from src.Enums.InvestEnum import InvestEnum
 from src.Models.Investimento import Investimento
 from src.myUtils import valida_se_numerico
@@ -75,17 +76,27 @@ class Menu:
 
         escolha_validada = self.__validar(texto, self._validador_de_escolha, 0, len(investimentos))
 
-        if escolha_validada == 0:
+        if escolha_validada == '0':
             print("Voltando...")
             return None
 
         return int(escolha_validada) - 1
 
-    def emprestimo(self):
-        ...
+    def emprestimo(self) -> EmprestimoEnum | None:
+        texto = self.__cabecalho()
+        texto += "Emprestimo selecionado." + "\n"
+        texto += "Escolha uma opção:" + "\n"
+        texto += "1 - R$ 1.000,00 em 5 parcelas com juros de 10% a.m." + "\n"
+        texto += "2 - R$ 500,00 em 3 parcelas com juros de 10% a.m." + "\n"
+        texto += "3 - R$ 300,00 em 2 parcelas com juros de 10% a.m." + "\n"
+        texto += "4 - Montar proposta" + "\n"
+        texto += "5 - Sair" + "\n"
+        texto += "* " * 10 + "\n"
 
-    def valida_valor_desejado(self):
-        valor = valida_se_numerico("Digite o valor bruto que deseja resgatar: R$ ")
-        if not valor_desejado.isdecimal():
-            return False
-        return True
+        escolha_validada = self.__validar(texto, self._validador_de_escolha, 1, 4)
+
+        if escolha_validada == '5':
+            print("Voltando...")
+            return None
+
+        return EmprestimoEnum(int(escolha_validada))
