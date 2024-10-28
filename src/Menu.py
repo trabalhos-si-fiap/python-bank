@@ -1,10 +1,17 @@
-from src.AcaoEnum import Acao
-from src.InvestEnum import InvestEnum
+from src.Enums.AcaoEnum import Acao
+from src.Enums.InvestEnum import InvestEnum
+from src.Models.Investimento import Investimento
+from src.myUtils import valida_se_numerico
 
 
 class Menu:
     def __init__(self):
         ...
+
+    def __cabecalho(self) -> str:
+        texto = "* " * 10 + "\n"
+        texto += "VIP BANK".center(20) + "\n"
+        return texto
 
     def _validador_de_escolha(self, funcao_selecionada: str, primeira: int, ultima: int) -> bool:
         valido = True
@@ -24,8 +31,7 @@ class Menu:
                 return opcao_selecionada
 
     def tela_inicial(self) -> Acao:
-        texto = "* " * 10 + "\n"
-        texto += "VIP BANK".center(20) + "\n"
+        texto = self.__cabecalho()
         texto += "Escolha uma opção:" + "\n"
         texto += "1 - Fazer investimento" + "\n"
         texto += "2 - Realizar resgate" + "\n"
@@ -37,22 +43,49 @@ class Menu:
         return Acao(int(escolha_validada))
 
     def investir(self) -> InvestEnum:
-        texto = "* " * 10 + "\n"
-        texto += "VIP BANK".center(20) + "\n"
+        texto = self.__cabecalho()
         texto += "Investimentos:" + "\n"
         texto += "Escolha uma opção:" + "\n"
-        texto += "1 - CDB" + "\n"
-        texto += "2 - LCI" + "\n"
-        texto += "3 - LCA" + "\n"
-        texto += "4 - Voltar" + "\n"
+        texto += f"1 - CDB Pré-Fixado {InvestEnum.CDB.get_taxa_contratada() * 100:.2f}% a.a. liquidez diária." + "\n"
+        texto += f"2 - LCI Pré-Fixado {InvestEnum.LCI.get_taxa_contratada() * 100:.2f}% a.a. liquidez diária e isento de IR." + "\n"
+        texto += f"3 - LCA Pré-Fixado {InvestEnum.LCA.get_taxa_contratada() * 100:.2f}% a.a. liquidez diária e isento de IR." + "\n"
+        texto += "4 - Voltar." + "\n"
         texto += "* " * 10 + "\n"
 
         escolha_validada = self.__validar(texto, self._validador_de_escolha, 1, 4)
 
         return InvestEnum(int(escolha_validada))
 
-    def resgatar(self):
-        ...
+    def resgatar(self, investimentos: list[Investimento]) -> int | None:
+        texto = self.__cabecalho()
+        texto += "Você selecionou a opção resgate:\n"
+
+        if len(investimentos) == 0:
+            print(texto)
+            print("Você não tem investimentos para resgatar.")
+            print("* " * 10)
+            return None
+
+        for i, inv in enumerate(investimentos):
+            print(f"{i + 1} - {inv}")
+
+        print("Digite 0 para voltar e cancelar o resgate.")
+        texto += f"Escolha um ativo a ser resgatado {1} a {len(investimentos)}:\n"
+        texto += "* " * 10 + "\n"
+
+        escolha_validada = self.__validar(texto, self._validador_de_escolha, 0, len(investimentos))
+
+        if escolha_validada == 0:
+            print("Voltando...")
+            return None
+
+        return int(escolha_validada) - 1
 
     def emprestimo(self):
         ...
+
+    def valida_valor_desejado(self):
+        valor = valida_se_numerico("Digite o valor bruto que deseja resgatar: R$ ")
+        if not valor_desejado.isdecimal():
+            return False
+        return True
