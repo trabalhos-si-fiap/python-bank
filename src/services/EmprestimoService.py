@@ -37,7 +37,7 @@ class Emprestimo:
         print('Você escolheu empréstimo.')
         print('Pacote selecionado:')
         print(
-            f'Valor: {formata_brl(valor)} | numero de parcelas: {numero_parcelas} | juros ao mes {juros_am * 100:.2f} %'
+            f'Valor: {formata_brl(valor)} | numero de parcelas: {numero_parcelas} | juros ao mês {juros_am * 100:.2f} %'
         )
         print(f'Valor das parcelas {formata_brl(parcelas)}')
         print(f'Total a pagar {formata_brl(parcelas * numero_parcelas)}')

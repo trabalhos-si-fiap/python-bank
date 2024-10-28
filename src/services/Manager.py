@@ -1,4 +1,3 @@
-from src.Menu import Menu
 from src.services.EmprestimoService import Emprestimo
 from src.services.InvestimentoService import InvestimentoService
 
@@ -16,13 +15,3 @@ class Manager:
 
     def realizar_emprestimo(self):
         self.emprestimo.run()
-
-
-if __name__ == '__main__':
-    menu = Menu()
-    invest_service = InvestimentoService(menu)
-
-    manager = Manager(invest_service, Emprestimo(menu))
-    while True:
-        acao = menu.tela_inicial()
-        acao.run(manager)

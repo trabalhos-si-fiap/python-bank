@@ -2,7 +2,6 @@ from src.Enums.AcaoEnum import Acao
 from src.Enums.EmprestimoEnum import EmprestimoEnum
 from src.Enums.InvestEnum import InvestEnum
 from src.Models.Investimento import Investimento
-from src.myUtils import valida_se_numerico
 
 
 class Menu:
@@ -93,7 +92,7 @@ class Menu:
         texto += "5 - Sair" + "\n"
         texto += "* " * 10 + "\n"
 
-        escolha_validada = self.__validar(texto, self._validador_de_escolha, 1, 4)
+        escolha_validada = self.__validar(texto, self._validador_de_escolha, 1, 5)
 
         if escolha_validada == '5':
             print("Voltando...")
